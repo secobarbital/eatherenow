@@ -1,6 +1,6 @@
 var webpack = require('webpack');
-var host = process.env.SERVER_HOST || 'localhost';
-var port = process.env.SERVER_PORT || 5000;
+var host = process.env.DEV_SERVER_HOST || 'localhost';
+var port = process.env.DEV_SERVER_PORT || 2992;
 
 module.exports = {
   devtool: 'eval',
