@@ -20,8 +20,8 @@ var Suggest = React.createClass({
 
     return (
       <Swipeable onSwipingRight={swipingRight} onSwipingLeft={swipingLeft} onSwiped={this.swiped}>
-        <div className="thumbnail">
-          <img src={resto.image_url} style={cardStyle} />
+        <div className="thumbnail" style={cardStyle}>
+          <img src={resto.image_url} />
           <div className="caption">
             <h3>{resto.name}</h3>
             <p>{resto.description}</p>
