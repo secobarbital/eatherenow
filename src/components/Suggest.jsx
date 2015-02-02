@@ -1,6 +1,25 @@
-var React = require('react');
+var React = require('react/addons');
 var Swipeable = require('react-swipeable');
 var request = require('superagent');
+var PureRenderMixin = React.addons.PureRenderMixin;
+
+var Suggestion = React.createClass({
+    mixins: [PureRenderMixin],
+
+    render: function() {
+        var resto = this.props.restaurant;
+
+        return (
+            <div className="thumbnail">
+                <img src={resto.image_url} />
+                <div className="caption">
+                    <h3>{resto.name}</h3>
+                    <pre>{JSON.stringify(resto, null, '  ')}</pre>
+                </div>
+            </div>
+        );
+    }
+});
 
 var Suggest = React.createClass({
     getInitialState: function() {
@@ -49,12 +68,8 @@ var Suggest = React.createClass({
 
         return (
             <Swipeable onSwipingRight={swipingR} onSwipingLeft={swipingL} onSwiped={swiped}>
-                <div className="thumbnail" style={cardStyle}>
-                    <img src={resto.image_url} />
-                    <div className="caption">
-                        <h3>{resto.name}</h3>
-                        <pre>{JSON.stringify(resto, null, '  ')}</pre>
-                    </div>
+                <div style={cardStyle}>
+                    <Suggestion restaurant={resto} />
                 </div>
             </Swipeable>
         );
