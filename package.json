@@ -15,12 +15,12 @@
     "cors": "^2.5.3",
     "debug": "~2.1.1",
     "express": "~4.11.1",
-    "factual-api": "^1.0.7",
     "jade": "~1.9.1",
     "morgan": "~1.5.1",
     "react": "^0.12.2",
     "react-router": "^0.11.6",
     "react-swipeable": "^2.0.0",
+    "request": "^2.52.0",
     "serve-favicon": "~2.2.0",
     "superagent": "^0.21.0"
   },

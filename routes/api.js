@@ -1,37 +1,41 @@
 var express = require('express');
-var Factual = require('factual-api');
+var request = require('request');
 
 var router = express.Router();
-var factual = new Factual(
-    process.env.FACTUAL_API_KEY,
-    process.env.FACTUAL_API_SECRET
-);
-var categories = [
-    338 // Social > Food & Dining
-];
 
-function restaurants(latitude, longitude, radius, cb) {
-    factual.get('/t/restaurants-us', {
-        geo: {
-            "$circle": {
-                "$center": [latitude, longitude],
-                "$meters": radius
-            }
-        }
-    }, cb);
+var yelp = {
+    url: 'http://api.yelp.com/v2/search',
+    oauth: {
+        consumer_key: process.env.YELP_CONSUMER_KEY,
+        consumer_secret: process.env.YELP_CONSUMER_SECRET,
+        token: process.env.YELP_TOKEN,
+        token_secret: process.env.YELP_TOKEN_SECRET
+    }
+};
+
+function restaurants(coords) {
+    var ll = [
+        coords.latitude,
+        coords.longitude,
+        coords.accuracy
+    ].join(',');
+    var qs = {
+        category_filter: 'restaurants',
+        ll: ll
+    };
+    return request.get({
+        url: yelp.url,
+        oauth: yelp.oauth,
+        qs: qs
+    });
 }
 
-/* GET home page. */
 router.get('/restaurants', function(req, res, next) {
-    var latitude = req.query.lat;
-    var longitude = req.query.lng;
-    var radius = req.params.rad || 5000;
-    restaurants(latitude, longitude, radius, function(err, rez) {
-        if (err) {
-            return next(err);
-        }
-        res.send(rez.data);
-    });
+    var coords = req.query;
+    if (!coords) {
+        return next('Missing coordinates')
+    }
+    restaurants(coords).pipe(res);
 });
 
 module.exports = router;

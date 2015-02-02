@@ -38,7 +38,8 @@ var Suggest = React.createClass({
     },
 
     renderSuggestion: function() {
-        var resto = this.state.restaurants[this.state.restoIdx];
+        var restoIdx = this.state.restoIdx;
+        var resto = this.state.restaurants[restoIdx];
         var swipingR = this.swiping.bind(this, 1);
         var swipingL = this.swiping.bind(this, -1);
         var swiped = this.swiped;
@@ -52,7 +53,7 @@ var Suggest = React.createClass({
                     <img src={resto.image_url} />
                     <div className="caption">
                         <h3>{resto.name}</h3>
-                        <p>{resto.description}</p>
+                        <pre>{JSON.stringify(resto, null, '  ')}</pre>
                     </div>
                 </div>
             </Swipeable>
@@ -64,11 +65,17 @@ var Suggest = React.createClass({
     },
 
     swiped: function(e, x, y, isFlick) {
-        var { restaurants } = this.state;
+        var { restaurants, restoIdx } = this.state;
+        var dir;
+        var max;
 
         this.setState({ translateX: 0 });
         if (isFlick) {
-            this.setState({ restoIdx: (this.state.restoIdx+1)%restaurants.length })
+            dir = x / Math.abs(x);
+            max = restaurants.length;
+            this.setState({
+              restoIdx: (restoIdx + dir + max) % max
+            });
         }
     },
 
@@ -81,18 +88,16 @@ var Suggest = React.createClass({
     },
 
     getRestaurants: function() {
-        var { latitude, longitude } = this.state.position.coords;
+        var url = 'http://192.168.1.111:3000/api/restaurants';
+        var coords = this.state.position.coords;
         request
-            .get('http://192.168.1.111:3000/api/restaurants')
-            .query({
-                lat: latitude,
-                lng: longitude
-            })
+            .get(url)
+            .query(coords)
             .end(function(err, res) {
                 if (err) {
                     this.setState({ apiError: err });
                 } else {
-                    this.setState({ restaurants: res.body });
+                    this.setState({ restaurants: res.body.businesses });
                 }
             }.bind(this));
     }
