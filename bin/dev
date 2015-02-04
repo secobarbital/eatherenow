@@ -1,19 +1,8 @@
-#!/usr/bin/env node
+#!/bin/sh
 
-var webpack = require('webpack');
-var WebpackDevServer = require('webpack-dev-server');
-var config = require('../webpack.config');
+[ -z "${WDS_PORT}" ] && WDS_PORT=8080
 
-var iface = process.env.DEV_SERVER_IFACE || '0.0.0.0';
-var port = config.entry[0].split(':')[2];
-
-new WebpackDevServer(webpack(config), {
-  contentBase: config.output.path,
-  publicPath: config.output.publicPath,
-  hot: true
-}).listen(port, iface, function(err, result) {
-  if (err) {
-    console.error(err);
-  }
-  console.log('Dev Server listening at', iface + ':' + port);
-});
+webpack-dev-server \
+-d --hot --inline --display-reasons --display-error-details --progress \
+--colors --port ${WDS_PORT} --output-public-path http://127.0.0.1:${WDS_PORT}/ \
+--content-base ./public

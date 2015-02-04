@@ -1,49 +1,49 @@
 var webpack = require('webpack');
-var host = process.env.DEV_SERVER_HOST || 'localhost';
-var port = process.env.DEV_SERVER_PORT || 2992;
 
-var prod = process.env.NODE_ENV === 'production';
+var release = (process.env.NODE_ENV === 'production');
 
-var config = {
-    entry: './src/index',
-    output: {
-        path: __dirname + '/public',
-        filename: 'bundle.js',
-        publicPath: '/'
-    },
-    plugins: [
-        new webpack.optimize.UglifyJsPlugin(),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.DefinePlugin({
-            "process.env": {
-                NODE_ENV: JSON.stringify("production")
-            }
-        }),
-        new webpack.NoErrorsPlugin()
-    ],
-    module: {
-      loaders: [
-        { test: /\.jsx$/, loaders: ['react-hot', 'jsx?harmony'], exclude: /node_modules/ },
-        { test: /\.json$/, loader: 'json', exclude: /node_modules/ }
-      ]
-    },
-    resolve: {
-      modulesDirectories: ['node_modules', 'bower_components'],
-      extensions: ['', '.js', '.jsx']
-    }
-};
+var plugins = [
+    new webpack.NormalModuleReplacementPlugin(/^react$/, 'react/addons'),
+    //new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js'),
+];
 
-if (!prod) {
-    config.devtool = 'eval';
-    config.entry = [
-        'webpack-dev-server/client?http://' + host + ':' + port,
-        'webpack/hot/only-dev-server',
-        config.entry
-    ];
-    config.plugins = [
-        new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoErrorsPlugin()
-    ];
+var jsxLoader = ['jsx?harmony'];
+
+if (release)  {
+    plugins.push(new webpack.DefinePlugin({
+        'process.env': {
+            // This has effect on the react lib size
+            'NODE_ENV': JSON.stringify('production'),
+        },
+    }));
+
+    plugins.push(new webpack.optimize.DedupePlugin());
+    plugins.push(new webpack.optimize.UglifyJsPlugin());
+} else {
+    jsxLoader = ['react-hot', 'jsx?harmony'];
 }
 
-module.exports = config;
+var config = module.exports = {
+    debug: !release,
+    cache: !release,
+    devtool: !release && 'inline-source-map',
+    entry: {
+        'bundle': './src/index',
+        //vendor: ['react/addons', 'react-router', 'bows', 'fluxxor', 'lodash'] //, 'lunr', 'moment', 'node-uuid', 'superagent', 'tcomb-validation', 'react-textarea-autosize', 'react-playground']
+    },
+    output: {
+        path: __dirname + '/public',
+        filename: '[name].js',
+        publicPath: '/',
+    },
+    plugins: plugins,
+    resolve: {
+        extensions: ['', '.js', '.jsx'],
+    },
+    module: {
+        loaders: [
+            { test: /\.js$/, loaders: ['jsx?harmony'] },
+            { test: /\.jsx$/, loaders: jsxLoader },
+        ],
+    },
+};

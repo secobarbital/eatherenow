@@ -103,7 +103,7 @@ var Suggest = React.createClass({
     },
 
     getRestaurants: function() {
-        var url = 'http://192.168.1.111:3000/api/restaurants';
+        var url = '/api/restaurants';
         var coords = this.state.position.coords;
         request
             .get(url)
